@@ -98,8 +98,17 @@ public class State {
         return possibleMoves;
     }
 
-    private boolean hasPieceOnPosition(Position piecePosition, PlayerColor who) {
-        return true;
+    public boolean hasPieceOnPosition(Position piecePosition, PlayerColor who) {
+        int row = piecePosition.getRow();
+        int column = piecePosition.getColumn();
+
+        if (who == PlayerColor.WHITE)
+            return (byte) (whites[row] & (1 << column)) != 0;
+        return (byte) (whites[row] & (1 << column)) != 0;
+    }
+
+    public boolean isEmpty(Position position) {
+        return !hasPieceOnPosition(position, PlayerColor.WHITE) && !hasPieceOnPosition(position, PlayerColor.BLACK);
     }
 
     //
@@ -118,9 +127,11 @@ public class State {
         int col = from.getColumn();
         int row = from.getRow();
 
-        if (who == PlayerColor.WHITE) {
-            whites[row] = (whites[row] & removeMask(col))
-        }
+        if (who == PlayerColor.WHITE)
+            whites[row] = (byte)(whites[row] & removeMask(col));
+        else
+            blacks[row] = (byte)(blacks[row] & removeMask(col));
+
     }
 
     private byte removeMask(int col) {
@@ -128,12 +139,23 @@ public class State {
     }
 
     private void addPiece(PlayerColor who, Position to) {
+        int col = to.getColumn();
+        int row = to.getRow();
 
+        if (who == PlayerColor.WHITE)
+            whites[row] = (byte)(whites[row] | addMask(col));
+        else
+            blacks[row] = (byte)(blacks[row] | addMask(col));
+    }
+
+    private byte addMask(int col) {
+        return (byte)(1 << col);
     }
 
     private State copy() {
         State st = new State();
         st.blacks = Arrays.copyOf(this.blacks, 8);
         st.whites = Arrays.copyOf(this.whites, 8);
+        return st;
     }
 }

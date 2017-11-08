@@ -5,7 +5,9 @@ package fii.ai.pawnchess.core;
  */
 public class Main {
     public static void main(String[] args) {
-        State state = new State();
-        System.out.println(state.toString());
+
+
+        byte b = 10;
+        System.out.println(Byte.valueOf(String.valueOf(b), 2));
     }
 }
