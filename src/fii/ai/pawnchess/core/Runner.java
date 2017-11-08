@@ -18,6 +18,8 @@ public class Runner {
 
     private void run() {
         currentState = State.getInitialState();
+        State previousState = currentState;
+        Position shadow = null;
         Random rand = new Random();
         if (rand.nextBoolean()) {
             // The player always plays with white
@@ -36,8 +38,10 @@ public class Runner {
                 Position from = transition.get(0);
                 Position to = transition.get(1);
 
-                if (currentState.canMove(from, to, PlayerColor.WHITE))
-                    currentState = currentState.executeMove(from,to, PlayerColor.WHITE);
+                if (currentState.canMove(from, to, PlayerColor.WHITE)) {
+                    previousState = currentState;
+                    currentState = currentState.executeMove(from, to, PlayerColor.WHITE);
+                }
                 else {
                     System.out.println("Invalid move, please try again!");
                     continue;
@@ -45,8 +49,19 @@ public class Runner {
             }
             else {
 //              Computer moves
+                previousState = currentState;
                 currentState = computer.computeNextState(currentState);
+
             }
+
+            // If there was a shadow from the last turn but the other player didn't capture it
+            if (shadow != null && currentState.hasPieceOnPosition(shadow, movesNext.getOther())) {
+                // Delete the shadow
+                currentState.removePiece(movesNext.getOther(), shadow);
+                System.out.println("Deleting the copy from en-passant");
+            }
+            shadow = State.checkIfEnPassant(previousState, currentState);
+
             movesNext = movesNext.getOther();
 
 

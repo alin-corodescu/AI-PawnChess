@@ -155,7 +155,7 @@ public class State {
         return nextState;
     }
 
-    private void removePiece(PlayerColor who, Position from) {
+    void removePiece(PlayerColor who, Position from) {
         int col = from.getColumn();
         int row = from.getRow();
 
@@ -189,5 +189,36 @@ public class State {
         st.blacks = Arrays.copyOf(this.blacks, 8);
         st.whites = Arrays.copyOf(this.whites, 8);
         return st;
+    }
+
+    public static Position checkIfEnPassant(State previous, State next) {
+        // check for whites
+        for (int col = 0 ; col < 8; col++) {
+            Position start = new Position(1,col);
+            Position end = new Position(3,col);
+            Position shadow = new Position(2,col);
+            if (previous.hasPieceOnPosition(start, PlayerColor.WHITE) &&
+                    previous.isEmpty(end) &&
+                    next.hasPieceOnPosition(end, PlayerColor.WHITE))
+                // can't have more than one piece at a time
+            {
+                next.addPiece(PlayerColor.WHITE, shadow);
+                return shadow;
+            }
+        }
+        for (int col = 0 ; col < 8; col++) {
+            Position start = new Position(6,col);
+            Position end = new Position(4,col);
+            Position shadow = new Position(5,col);
+            if (previous.hasPieceOnPosition(start, PlayerColor.BLACK) &&
+                    previous.isEmpty(end) &&
+                    next.hasPieceOnPosition(end, PlayerColor.BLACK))
+            // can't have more than one piece at a time
+            {
+                next.addPiece(PlayerColor.BLACK, shadow);
+                return shadow;
+            }
+        }
+        return null;
     }
 }

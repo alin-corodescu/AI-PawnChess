@@ -1,7 +1,6 @@
 package fii.ai.pawnchess.core;
 
 
-import javafx.geometry.Pos;
 
 /**
  * Created by alin on 11/8/17.
