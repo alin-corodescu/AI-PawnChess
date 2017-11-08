@@ -8,6 +8,7 @@ public class Main {
 
 
         byte b = 10;
-        System.out.println(Byte.valueOf(String.valueOf(b), 2));
+        b = (byte) (b & (1 << 2));
+        System.out.println(Integer.toBinaryString(b));
     }
 }

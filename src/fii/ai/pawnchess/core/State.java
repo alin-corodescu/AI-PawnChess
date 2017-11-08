@@ -1,5 +1,7 @@
 package fii.ai.pawnchess.core;
 
+import javafx.geometry.Pos;
+
 import java.util.*;
 
 /**
@@ -8,23 +10,25 @@ import java.util.*;
 public class State {
     byte[] whites = new byte[8];
     byte[] blacks = new byte[8];
-    /**
-     * Checks if the transition between the current state and the next state is valid
-     * @return true if the transition is valid, false otherwise
-     */
-    boolean checkIfValidMove(State nextState, PlayerColor who) {
-        throw new RuntimeException("Not implemtented");
+
+    public static State getInitialState() {
+        return null;
     }
 
     /**
      * Checks if the current state is final
+     *
      * @return true is the state is final, false otherwise
      */
     boolean isFinal() {
-        throw new RuntimeException("Not implemtented");
+        return whites[7] != 0 || blacks[0] != 0;
     }
 
     FinalStateType getFinalStateType() {
+        if (whites[7] != 0)
+            return FinalStateType.WHITE_WIN;
+        if (blacks[0] != 0)
+            return FinalStateType.BLACK_WIN;
         return FinalStateType.DRAW;
     }
 
@@ -32,11 +36,23 @@ public class State {
      * @param who player who has to move
      * @return all accessible states starting from the current state
      */
-    public List<State> getAccessibleStates(PlayerColor who)
-    {
+    public List<State> getAccessibleStates(PlayerColor who) {
         List<State> accessibleStates = new ArrayList<>();
 
         return accessibleStates;
+    }
+
+    public List<Position> getPiecesPositionsFor(PlayerColor who) {
+        List<Position> positions = new ArrayList<>();
+
+        for (int i = 0; i < 8; i ++)
+            for (int j = 0; j < 8 ;j++) {
+                Position p = new Position(i, j);
+                if (hasPieceOnPosition(p, who))
+                    positions.add(p);
+            }
+
+        return positions;
     }
 
     @Override
@@ -49,10 +65,6 @@ public class State {
             builder.append("  - - - - - - - - \n");
         }
         return builder.toString();
-    }
-
-    public static State getInitialState() {
-        return null;
     }
 
     public boolean canMove(Position from, Position to, PlayerColor who) {
@@ -76,7 +88,7 @@ public class State {
             }
             // Move two step ahead, without capturing
             if (who.isInitial(piecePosition)) {
-                Position twoStepAhead = piecePosition.getNeighbourPosition(2*direction, 0);
+                Position twoStepAhead = piecePosition.getNeighbourPosition(2 * direction, 0);
                 if (!hasPieceOnPosition(twoStepAhead, other) && !hasPieceOnPosition(oneStepAhead, other)) {
                     possibleMoves.put(twoStepAhead, Optional.empty());
                 }
@@ -86,12 +98,11 @@ public class State {
 
             if (hasPieceOnPosition(left, other))
                 possibleMoves.put(left, Optional.of(left));
-            if (hasPieceOnPosition(right,other))
+            if (hasPieceOnPosition(right, other))
                 possibleMoves.put(right, Optional.of(right));
 
             // TODO fuking en-passant
-        }
-        else {
+        } else {
             throw new RuntimeException("No piece at that position");
         }
 
@@ -128,14 +139,14 @@ public class State {
         int row = from.getRow();
 
         if (who == PlayerColor.WHITE)
-            whites[row] = (byte)(whites[row] & removeMask(col));
+            whites[row] = (byte) (whites[row] & removeMask(col));
         else
-            blacks[row] = (byte)(blacks[row] & removeMask(col));
+            blacks[row] = (byte) (blacks[row] & removeMask(col));
 
     }
 
     private byte removeMask(int col) {
-        return (byte)~(1 << col);
+        return (byte) ~(1 << col);
     }
 
     private void addPiece(PlayerColor who, Position to) {
@@ -143,13 +154,13 @@ public class State {
         int row = to.getRow();
 
         if (who == PlayerColor.WHITE)
-            whites[row] = (byte)(whites[row] | addMask(col));
+            whites[row] = (byte) (whites[row] | addMask(col));
         else
-            blacks[row] = (byte)(blacks[row] | addMask(col));
+            blacks[row] = (byte) (blacks[row] | addMask(col));
     }
 
     private byte addMask(int col) {
-        return (byte)(1 << col);
+        return (byte) (1 << col);
     }
 
     private State copy() {
