@@ -1,5 +1,8 @@
 package fii.ai.pawnchess.core;
 
+import javafx.geometry.Pos;
+
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -8,7 +11,8 @@ import java.util.Random;
 public class Runner {
     PlayerColor movesNext;
     State currentState;
-    Brain computer = null;
+    Brain computer = new BrainImpl(4);
+    MovesReader reader = new MovesReader();
     public static void main(String args[]) {
         new Runner().run();
 
@@ -30,12 +34,21 @@ public class Runner {
         while (true) {
             if (movesNext == PlayerColor.WHITE) {
 //                Gather input, make the move
+                List<Position> transition = reader.readNextMove();
+                Position from = transition.get(0);
+                Position to = transition.get(1);
+
+                if (currentState.canMove(from, to, PlayerColor.WHITE))
+                    currentState = currentState.executeMove(from,to, PlayerColor.WHITE);
+                else
+                    System.out.println("Invalid move, please try again!");
+                continue;
             }
             else {
 //              Computer moves
                 currentState = computer.computeNextState(currentState);
             }
-
+            movesNext = movesNext.getOther();
             System.out.println(currentState);
 
             if (currentState.isFinal()) {
