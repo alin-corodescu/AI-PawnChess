@@ -5,4 +5,14 @@ package fii.ai.pawnchess.core;
  */
 public enum PlayerColor {
     WHITE, BLACK;
+
+    public boolean isInitial(Position p) {
+        return (this == WHITE && p.getRow() == 2) || (this == BLACK && p.getRow() == 6);
+    }
+
+    public PlayerColor getOther() {
+        if (this == WHITE)
+            return BLACK;
+        return WHITE;
+    }
 }
