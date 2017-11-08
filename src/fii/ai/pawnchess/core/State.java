@@ -14,7 +14,7 @@ public class State {
     public static State getInitialState() {
         State initialState = new State();
         initialState.whites[1] = ~0;
-        initialState.blacks[6] = ~0;
+        initialState.blacks[2] = ~0;
 
         return initialState;
     }
@@ -152,7 +152,7 @@ public class State {
         Optional<Position> captured = moves.get(to);
         nextState.removePiece(who, from);
         nextState.addPiece(who, to);
-        captured.ifPresent(position -> nextState.removePiece(who, position));
+        captured.ifPresent(position -> nextState.removePiece(who.getOther(), position));
 
         return nextState;
     }

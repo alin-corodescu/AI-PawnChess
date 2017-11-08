@@ -1,6 +1,8 @@
 package fii.ai.pawnchess.core;
 
 
+import javafx.geometry.Pos;
+
 /**
  * Created by alin on 11/8/17.
  * Class represeting the position of a piece on the chess table
@@ -38,9 +40,28 @@ public class Position {
      */
     public Position(String pos) {
         char row = pos.charAt(0);
-        int column = Integer.valueOf("" + pos.charAt(0));
+        int column = Integer.valueOf("" + pos.charAt(1));
         this.row = row - 'A';
         this.column = column - 1;
+    }
+
+    @Override
+    public String toString() {
+        return row + " " + column;
+    }
+
+    @Override
+    public int hashCode() {
+        return (row + " " + column).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Position) {
+            Position pos = (Position) obj;
+            return pos.row == row && pos.column == column;
+        }
+        return super.equals(obj);
     }
 
     public Position getNeighbourPosition(int dx, int dy) {

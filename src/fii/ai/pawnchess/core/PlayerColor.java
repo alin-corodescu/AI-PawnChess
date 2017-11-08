@@ -7,7 +7,7 @@ public enum PlayerColor {
     WHITE, BLACK;
 
     public boolean isInitial(Position p) {
-        return (this == WHITE && p.getRow() == 2) || (this == BLACK && p.getRow() == 6);
+        return (this == WHITE && p.getRow() == 1) || (this == BLACK && p.getRow() == 6);
     }
 
     public PlayerColor getOther() {

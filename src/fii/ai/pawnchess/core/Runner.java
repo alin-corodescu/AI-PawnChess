@@ -29,9 +29,10 @@ public class Runner {
             // The computer always plays with black
             movesNext = PlayerColor.BLACK;
         }
-
+        movesNext = PlayerColor.BLACK;
         // TODO make more user friendly a.i. "You move first!"
         while (true) {
+            System.out.println(currentState);
             if (movesNext == PlayerColor.WHITE) {
 //                Gather input, make the move
                 List<Position> transition = reader.readNextMove();
@@ -40,16 +41,17 @@ public class Runner {
 
                 if (currentState.canMove(from, to, PlayerColor.WHITE))
                     currentState = currentState.executeMove(from,to, PlayerColor.WHITE);
-                else
+                else {
                     System.out.println("Invalid move, please try again!");
-                continue;
+                    continue;
+                }
             }
             else {
 //              Computer moves
                 currentState = computer.computeNextState(currentState);
             }
             movesNext = movesNext.getOther();
-            System.out.println(currentState);
+
 
             if (currentState.isFinal()) {
                 System.out.println(currentState.getFinalStateType().getMessage());
