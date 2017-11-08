@@ -14,7 +14,7 @@ public class State {
     public static State getInitialState() {
         State initialState = new State();
         initialState.whites[1] = ~0;
-        initialState.blacks[2] = ~0;
+        initialState.blacks[6] = ~0;
 
         return initialState;
     }
