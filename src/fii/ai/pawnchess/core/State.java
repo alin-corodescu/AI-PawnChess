@@ -12,7 +12,11 @@ public class State {
     byte[] blacks = new byte[8];
 
     public static State getInitialState() {
-        return null;
+        State initialState = new State();
+        initialState.whites[1] = ~0;
+        initialState.blacks[6] = ~0;
+
+        return initialState;
     }
 
     /**
@@ -39,6 +43,12 @@ public class State {
     public List<State> getAccessibleStates(PlayerColor who) {
         List<State> accessibleStates = new ArrayList<>();
 
+        List<Position> piecesPositions = getPiecesPositionsFor(who);
+        for (Position p : piecesPositions) {
+            Map<Position, Optional<Position>> moves = this.getPossibleMovesForPiece(p, who);
+            for (Position to : moves.keySet())
+                accessibleStates.add(this.executeMove(p, to, who));
+        }
         return accessibleStates;
     }
 
@@ -61,7 +71,17 @@ public class State {
         builder.append("  1 2 3 4 5 6 7 8\n");
         char startingLetter = 'A';
         for (int i = 0; i < 8; i++) {
-            builder.append(String.format("%c|%c|%c|%c|%c|%c|%c|%c|%c\n", startingLetter + i, '*', 'w', 'w', '*', 'w', '*', 'w', 'w'));
+            String[] chars = new String[9];
+            chars[0] = ""+(char)(startingLetter + i);
+            for (int j = 1; j < 9; j++)
+            {
+                chars[j] = "*";
+                if (hasPieceOnPosition(new Position(i,j-1), PlayerColor.WHITE))
+                    chars[j] = "W";
+                if (hasPieceOnPosition(new Position(i, j-1), PlayerColor.BLACK))
+                    chars[j] = "B";
+            }
+            builder.append(String.format("%s|%s|%s|%s|%s|%s|%s|%s|%s\n", chars));
             builder.append("  - - - - - - - - \n");
         }
         return builder.toString();
@@ -78,18 +98,18 @@ public class State {
         PlayerColor other = who.getOther();
         Map<Position, Optional<Position>> possibleMoves = new HashMap<>();
         if (hasPieceOnPosition(piecePosition, who)) {
-            // whites move down, blakcs move up
-            if (who == PlayerColor.WHITE) direction = -1;
-            else direction = 1;
+            // whites move up, blakcs move down
+            if (who == PlayerColor.WHITE) direction = 1;
+            else direction = -1;
             // Move one step ahead, without capturing
             Position oneStepAhead = piecePosition.getNeighbourPosition(direction, 0);
-            if (!hasPieceOnPosition(oneStepAhead, other)) {
+            if (isEmpty(oneStepAhead)) {
                 possibleMoves.put(oneStepAhead, Optional.empty());
             }
             // Move two step ahead, without capturing
             if (who.isInitial(piecePosition)) {
                 Position twoStepAhead = piecePosition.getNeighbourPosition(2 * direction, 0);
-                if (!hasPieceOnPosition(twoStepAhead, other) && !hasPieceOnPosition(oneStepAhead, other)) {
+                if (isEmpty(twoStepAhead) && isEmpty(oneStepAhead)) {
                     possibleMoves.put(twoStepAhead, Optional.empty());
                 }
             }
@@ -112,10 +132,13 @@ public class State {
     public boolean hasPieceOnPosition(Position piecePosition, PlayerColor who) {
         int row = piecePosition.getRow();
         int column = piecePosition.getColumn();
-
+        if (row < 0 || row > 7) return false;
+        if (column < 0 || column > 7) return false;
         if (who == PlayerColor.WHITE)
             return (byte) (whites[row] & (1 << column)) != 0;
-        return (byte) (whites[row] & (1 << column)) != 0;
+        else {
+            return (byte) (blacks[row] & (1 << column)) != 0;
+        }
     }
 
     public boolean isEmpty(Position position) {

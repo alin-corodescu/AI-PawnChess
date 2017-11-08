@@ -5,10 +5,7 @@ package fii.ai.pawnchess.core;
  */
 public class Main {
     public static void main(String[] args) {
-
-
-        byte b = 10;
-        b = (byte) (b & (1 << 2));
-        System.out.println(Integer.toBinaryString(b));
+        State state = State.getInitialState();
+        System.out.println(state);
     }
 }

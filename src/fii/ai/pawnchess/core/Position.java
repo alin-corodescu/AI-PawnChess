@@ -28,8 +28,8 @@ public class Position {
      * Constructor which gets both the row and columns as int's
      */
     public Position(int row, int column) {
-        this.row = row - 1;
-        this.column = column - 1;
+        this.row = row;
+        this.column = column;
     }
 
     /**
