@@ -7,6 +7,7 @@ import java.util.List;
  * Holds information about the current game state.
  */
 public class State {
+    byte[] whites, blacks;
     /**
      * Checks if the transition between the current state and the next state is valid
      * @return true if the transition is valid, false otherwise
@@ -52,5 +53,12 @@ public class State {
 
     public static State getInitialState() {
         return null;
+    }
+
+    //
+    public State executeMove(Position from, Position to) {
+        // Todo, implement checks
+        State nextState = new State();
+        return nextState;
     }
 }
