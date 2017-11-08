@@ -1,7 +1,6 @@
 package fii.ai.pawnchess.core;
 
 import java.util.List;
-import java.util.Random;
 
 public class Tree
 {
@@ -19,7 +18,7 @@ public class Tree
     Tree(Node rootNode, int lookAhead) {
         this.rootNode = rootNode;
         this.lookAhead = lookAhead;
-        costFunction = (x) -> new Random().nextInt(10)+1;
+        costFunction = new CostFunctionImpl();
     }
 
     public Node getRootNode() {
@@ -32,6 +31,9 @@ public class Tree
 
     public void createTreeOfStatesUsingDFS(Node node, int level, PlayerColor color){
 //      When reached the lookahead-th level of tree, compute the cost function
+        if( node.getState().isFinal()){
+            node.getState().getFinalStateType();
+        }
         if(level == lookAhead ){
             node.setScore(this.costFunction.computeCost(node.getState()));
             return;

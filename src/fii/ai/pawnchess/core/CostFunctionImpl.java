@@ -36,9 +36,9 @@ public class CostFunctionImpl implements CostFunction
                 blackPositions.remove(blackPosition.get());
                 if(whitePosition.isPresent()){
                     if(whitePosition.get().getRow() < blackPosition.get().getRow())
-                        result -= whitePosition.get().getRow() * 10;
+                        result -= whitePosition.get().getRow() * 10 * whitePosition.get().getRow();
                 }
-                result +=  blackPosition.get().getRow();
+                result +=  (8 - blackPosition.get().getRow()) *10;
             }
         }
         return result;

@@ -1,7 +1,5 @@
 package fii.ai.pawnchess.core;
 
-import javafx.geometry.Pos;
-
 import java.util.*;
 
 /**
@@ -123,7 +121,7 @@ public class State {
 
             // TODO fuking en-passant
         } else {
-            throw new RuntimeException("No piece at that position");
+            System.out.println("Invalid move!");
         }
 
         return possibleMoves;

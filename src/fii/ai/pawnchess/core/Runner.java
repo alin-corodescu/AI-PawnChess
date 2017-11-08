@@ -1,7 +1,5 @@
 package fii.ai.pawnchess.core;
 
-import javafx.geometry.Pos;
-
 import java.util.List;
 import java.util.Random;
 
@@ -29,7 +27,6 @@ public class Runner {
             // The computer always plays with black
             movesNext = PlayerColor.BLACK;
         }
-        movesNext = PlayerColor.BLACK;
         // TODO make more user friendly a.i. "You move first!"
         while (true) {
             System.out.println(currentState);
