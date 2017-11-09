@@ -1,5 +1,7 @@
 package fii.ai.pawnchess.core;
 
+import com.sun.xml.internal.bind.WhiteSpaceProcessor;
+
 import java.util.*;
 
 /**
@@ -24,13 +26,17 @@ public class State {
      */
     boolean isFinal(PlayerColor who) {
         // If the player cannot move or one of them won
-        return getAccessibleStates(who).size() == 0 || whites[7] != 0 || blacks[0] != 0;
+        return getPiecesPositionsFor(PlayerColor.WHITE).size() == 0
+                || getPiecesPositionsFor(PlayerColor.BLACK).size() == 0
+                || getAccessibleStates(who).size() == 0
+                || whites[7] != 0
+                || blacks[0] != 0;
     }
 
     FinalStateType getFinalStateType() {
-        if (whites[7] != 0)
+        if (whites[7] != 0 || getPiecesPositionsFor(PlayerColor.BLACK).size() == 0)
             return FinalStateType.WHITE_WIN;
-        if (blacks[0] != 0)
+        if (blacks[0] != 0 || getPiecesPositionsFor(PlayerColor.WHITE).size() == 0)
             return FinalStateType.BLACK_WIN;
         return FinalStateType.DRAW;
     }

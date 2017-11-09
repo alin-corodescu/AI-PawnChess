@@ -15,17 +15,26 @@ public class CostFunctionImpl implements CostFunction
         this.whitePositions = state.getPiecesPositionsFor(PlayerColor.WHITE);
         this.blackPositions = state.getPiecesPositionsFor(PlayerColor.BLACK);
         double result = 0;
-        result += this.finalBlow(state) * 1000;
-        result += this.strike(state) * 100;
-        result += this.teamCount() * 10;
-        result += this.pawnStructure(state) * 3 ;
+        // Hai sa lasam ponderile sa fie
+        result += this.finalBlow(state) * 100;
+        result += this.strike(state) * 10;
+        result += this.teamCount();
+        result += this.pawnStructure(state) * 0.3 ;
+        result += this.pawnAdvancement();
         return result;
+    }
+
+    private double pawnAdvancement() {
+        // return the square of the distances to reward more advanced pieces more
+        return blackPositions.stream().mapToInt(x -> (6 - x.getRow()) * (6 - x.getRow()) * GOOD_SCORE).sum() +
+                whitePositions.stream().mapToInt(x -> (x.getRow() - 2) * (x.getRow() - 2) * BAD_SCORE).sum();
     }
 
     private int finalBlow(State state)
     {
         FinalStateType finalStateType;
-        if (state.isFinal(PlayerColor.BLACK))
+        // Nu conteaza cine e la mutare, daca castiga unul din ei asignam scorul care trb
+        if (state.isFinal(PlayerColor.BLACK) || state.isFinal(PlayerColor.WHITE))
         {
             finalStateType = state.getFinalStateType();
             if (finalStateType == FinalStateType.WHITE_WIN)
