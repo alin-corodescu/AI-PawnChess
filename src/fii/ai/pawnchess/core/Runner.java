@@ -65,7 +65,7 @@ public class Runner {
             movesNext = movesNext.getOther();
 
 
-            if (currentState.isFinal()) {
+            if (currentState.isFinal(movesNext.getOther())) {
                 System.out.println(currentState.getFinalStateType().getMessage());
                 break;
             }

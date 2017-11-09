@@ -22,8 +22,9 @@ public class State {
      *
      * @return true is the state is final, false otherwise
      */
-    boolean isFinal() {
-        return whites[7] != 0 || blacks[0] != 0;
+    boolean isFinal(PlayerColor who) {
+        // If the player cannot move or one of them won
+        return getAccessibleStates(who).size() == 0 || whites[7] != 0 || blacks[0] != 0;
     }
 
     FinalStateType getFinalStateType() {

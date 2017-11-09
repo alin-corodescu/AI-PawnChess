@@ -31,7 +31,7 @@ public class Tree
 
     public void createTreeOfStatesUsingDFS(Node node, int level, PlayerColor color){
 //      When reached the lookahead-th level of tree, compute the cost function
-        if( node.getState().isFinal()){
+        if( node.getState().isFinal(color)){
             node.getState().getFinalStateType();
         }
         if(level == lookAhead ){
