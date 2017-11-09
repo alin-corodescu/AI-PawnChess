@@ -1,7 +1,10 @@
 package fii.ai.pawnchess.core;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  * Created by alin on 11/8/17.
@@ -17,7 +20,7 @@ public class Runner {
     }
 
     private void run() {
-        currentState = State.getInitialState();
+        currentState = this.checkUserInput();
         State previousState = currentState;
         Position shadow = null;
         Random rand = new Random();
@@ -54,13 +57,13 @@ public class Runner {
 
             }
 
-            // If there was a shadow from the last turn but the other player didn't capture it
-            if (shadow != null && currentState.hasPieceOnPosition(shadow, movesNext.getOther())) {
-                // Delete the shadow
-                currentState.removePiece(movesNext.getOther(), shadow);
-                System.out.println("Deleting the copy from en-passant");
-            }
-            shadow = State.checkIfEnPassant(previousState, currentState);
+//            // If there was a shadow from the last turn but the other player didn't capture it
+//            if (shadow != null && currentState.hasPieceOnPosition(shadow, movesNext.getOther())) {
+//                // Delete the shadow
+//                currentState.removePiece(movesNext.getOther(), shadow);
+//                System.out.println("Deleting the copy from en-passant");
+//            }
+//            shadow = State.checkIfEnPassant(previousState, currentState);
 
             movesNext = movesNext.getOther();
 
@@ -70,5 +73,40 @@ public class Runner {
                 break;
             }
         }
+    }
+
+    private State checkUserInput(){
+        try
+        {
+            Scanner input = new Scanner(new FileReader("user-input"));
+            if(input.next().equals("0")){
+                return State.getInitialState();
+            }
+            byte[] whites = new byte[8];
+            byte[] blacks = new byte[8];
+            String value;
+            for(int i=0;i<8;i++)
+                for(int j=0;j<8;j++)
+                {
+                    value = input.next();
+                    if(value.toUpperCase().equals("W")){
+                        whites[i] = (byte) (whites[i] | (1 << j));
+                    }
+                    if(value.toUpperCase().equals("B")){
+                        blacks[i] = (byte) (blacks[i] | (1 << j));
+                    }
+                }
+            if(whites[0] != 0 || whites[7] != 0 || blacks[0] != 0 || blacks[7] != 0){
+                throw new RuntimeException("Game is already finished!");
+            }
+            State state = new State();
+            state.whites = whites;
+            state.blacks = blacks;
+            return state;
+        } catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        return State.getInitialState();
     }
 }
