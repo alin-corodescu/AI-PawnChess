@@ -1,26 +1,49 @@
 package fii.ai.pawnchess.core;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CostFunctionImpl implements CostFunction
 {
     private List<Position> whitePositions;
     private List<Position> blackPositions;
-    public static int FINAL_SCORE = 100000, DRAW_SCORE = 0, BEST_SCORE = 100, WORST_SCORE = -100,
-            GOOD_SCORE = 50, BAD_SCORE = -50;
+    public static int DRAW_SCORE = 0, GOOD_SCORE = 1, BAD_SCORE = -1;
 
     @Override
     public double computeCost(State state)
     {
+        GOOD_SCORE = 1;
+        BAD_SCORE = -1;
         this.whitePositions = state.getPiecesPositionsFor(PlayerColor.WHITE);
         this.blackPositions = state.getPiecesPositionsFor(PlayerColor.BLACK);
+        if(this.blackPositions.size() > this.whitePositions.size()+1)
+            GOOD_SCORE = 2;
+        if(this.whitePositions.size() < this.whitePositions.size()+1)
+            BAD_SCORE = -2;
+
         double result = 0;
-        // Hai sa lasam ponderile sa fie
-        result += this.finalBlow(state) * 100;
-        result += this.strike(state) * 10;
+        
+        //the finish state
+        result += this.finalState(state);
+
+        //state when a pawn is removed from the game
         result += this.teamCount();
-        result += this.pawnStructure(state) * 0.3 ;
-        result += this.pawnAdvancement();
+
+        if(this.teamCount() == DRAW_SCORE) {
+            //state where pawns are nearer to finish
+            //result += this.howManyStepsBeforeFinalPosition(state);
+
+            //state with a isolated enemy pawn
+            result += this.pawnStrike(state) * 0.2;
+
+            //state where a pawn is protected by other pawns behind him
+            result += this.pawnAlliance(state) * 0.6;
+
+            //states where pawns are closer to the finish line
+            result += this.pawnAdvancement() * 0.2;
+        }
         return result;
     }
 
@@ -30,22 +53,21 @@ public class CostFunctionImpl implements CostFunction
                 whitePositions.stream().mapToInt(x -> (x.getRow() - 2) * (x.getRow() - 2) * BAD_SCORE).sum();
     }
 
-    private int finalBlow(State state)
+    private int finalState(State state)
     {
         FinalStateType finalStateType;
-        // Nu conteaza cine e la mutare, daca castiga unul din ei asignam scorul care trb
         if (state.isFinal(PlayerColor.BLACK) || state.isFinal(PlayerColor.WHITE))
         {
             finalStateType = state.getFinalStateType();
             if (finalStateType == FinalStateType.WHITE_WIN)
-                return WORST_SCORE;
+                return Integer.MIN_VALUE;
             if (finalStateType == FinalStateType.BLACK_WIN)
-                return BEST_SCORE;
+                return Integer.MAX_VALUE;
         }
         return 0;
     }
 
-    private int pawnStructure(State state)
+    private int pawnAlliance(State state)
     {
         int result = DRAW_SCORE;
         Position leftNeighbour = new Position(-1, -1);
@@ -57,16 +79,11 @@ public class CostFunctionImpl implements CostFunction
 
             leftNeighbour.setColumn(position.getRow() - 1);
             rightNeighbour.setColumn(position.getColumn() + 1);
-            if (state.hasPieceOnPosition(leftNeighbour, PlayerColor.BLACK)
-                    && state.hasPieceOnPosition(rightNeighbour, PlayerColor.BLACK))
-                result += GOOD_SCORE * 3;
-            else
-            {
-                if (state.hasPieceOnPosition(leftNeighbour, PlayerColor.WHITE))
-                    result += GOOD_SCORE;
-                if (state.hasPieceOnPosition(rightNeighbour, PlayerColor.BLACK))
-                    result += GOOD_SCORE;
-            }
+
+            if (state.hasPieceOnPosition(leftNeighbour, PlayerColor.WHITE))
+                result += GOOD_SCORE;
+            if (state.hasPieceOnPosition(rightNeighbour, PlayerColor.BLACK))
+                result += GOOD_SCORE;
         }
         return result;
     }
@@ -76,13 +93,13 @@ public class CostFunctionImpl implements CostFunction
     {
         int score = DRAW_SCORE;
         if (blackPositions.size() > whitePositions.size())
-            score += GOOD_SCORE * (blackPositions.size() - whitePositions.size());
+            score += GOOD_SCORE * blackPositions.size() ;
         if (blackPositions.size() < whitePositions.size())
-            score -= BAD_SCORE * (blackPositions.size() - whitePositions.size());
+            score += BAD_SCORE * whitePositions.size() ;
         return score;
     }
 
-    private int strike(State state)
+    private int pawnStrike(State state)
     {
         int score = DRAW_SCORE;
         Position leftNeighbour = new Position(-1, -1);
@@ -98,13 +115,13 @@ public class CostFunctionImpl implements CostFunction
                     || state.hasPieceOnPosition(rightNeighbour, PlayerColor.WHITE))
             {
                 if (checkIfDefenders(state, leftNeighbour) == 0)
-                    score += BEST_SCORE*BEST_SCORE;
+                    score += GOOD_SCORE;
                 else
-                    score -= BAD_SCORE * checkIfDefenders(state, leftNeighbour);
+                    score += BAD_SCORE * checkIfDefenders(state, leftNeighbour);
                 if (checkIfDefenders(state, rightNeighbour) == 0)
-                    score += BEST_SCORE*BEST_SCORE;
+                    score += GOOD_SCORE;
                 else
-                    score -= BAD_SCORE * checkIfDefenders(state, rightNeighbour);
+                    score += BAD_SCORE * checkIfDefenders(state, rightNeighbour);
             }
         }
         return score;
@@ -122,5 +139,51 @@ public class CostFunctionImpl implements CostFunction
                 howManyDefenders++;
         }
         return howManyDefenders;
+    }
+
+    private int howManyStepsBeforeFinalPosition(State state)
+    {
+        List<Position> blacks;
+        List<Position> whites;
+        Optional<Position> blackPosition;
+        Optional<Position> whitePosition;
+        Position leftNeighbour = new Position(-1, -1);
+        Position rightNeighbour = new Position(-1, -1);
+        int score = 0;
+        for (int j = 0; j <= 8; j++)
+        {
+            int finalJ = j;
+
+            blacks = this.blackPositions.stream().filter(x -> x.getColumn() == finalJ).collect(Collectors.toList());
+            blackPosition = blacks.stream().min(Comparator.comparing(Position::getRow));
+
+            whites = this.whitePositions.stream().filter(x -> x.getColumn() == finalJ).collect(Collectors.toList());
+            whitePosition = whites.stream().max(Comparator.comparing(Position::getRow));
+
+            //check if we have a black pawn on the j-th column
+            if (blackPosition.isPresent())
+            {
+                this.blackPositions.remove(blackPosition.get());
+
+                //check if we have a white pawn also on j-th column
+                if (whitePosition.isPresent())
+                {
+                    if (whitePosition.get().getRow() > blackPosition.get().getRow())
+                        score += BAD_SCORE;
+                }
+                leftNeighbour.setRow(blackPosition.get().getRow() -1);
+                rightNeighbour.setRow(blackPosition.get().getRow() - 1);
+
+                leftNeighbour.setColumn(blackPosition.get().getRow() - 1);
+                rightNeighbour.setColumn(blackPosition.get().getColumn() + 1);
+                if(this.whitePositions.contains(leftNeighbour) && this.whitePositions.contains(rightNeighbour)){
+                    score += BAD_SCORE;
+                }
+                else{
+                    score += Integer.MAX_VALUE;
+                }
+            }
+        }
+        return score;
     }
 }

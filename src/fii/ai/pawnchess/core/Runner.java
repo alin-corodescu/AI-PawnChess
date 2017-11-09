@@ -57,13 +57,13 @@ public class Runner {
 
             }
 
-//            // If there was a shadow from the last turn but the other player didn't capture it
-//            if (shadow != null && currentState.hasPieceOnPosition(shadow, movesNext.getOther())) {
-//                // Delete the shadow
-//                currentState.removePiece(movesNext.getOther(), shadow);
-//                System.out.println("Deleting the copy from en-passant");
-//            }
-//            shadow = State.checkIfEnPassant(previousState, currentState);
+//             If there was a shadow from the last turn but the other player didn't capture it
+            if (shadow != null && currentState.hasPieceOnPosition(shadow, movesNext.getOther())) {
+                // Delete the shadow
+                currentState.removePiece(movesNext.getOther(), shadow);
+                System.out.println("Deleting the copy from en-passant");
+            }
+            shadow = State.checkIfEnPassant(previousState, currentState);
 
             movesNext = movesNext.getOther();
 

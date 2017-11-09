@@ -39,11 +39,11 @@ public class Tree
         if (node.getState().isFinal(color))
         {
             if (node.getState().getFinalStateType() == FinalStateType.BLACK_WIN)
-                node.setScore(CostFunctionImpl.FINAL_SCORE);
+                node.setScore(Integer.MAX_VALUE);
             if (node.getState().getFinalStateType() == FinalStateType.WHITE_WIN)
-                node.setScore(-CostFunctionImpl.FINAL_SCORE);
+                node.setScore(Integer.MIN_VALUE);
             if (node.getState().getFinalStateType() == FinalStateType.DRAW)
-                node.setScore(-CostFunctionImpl.DRAW_SCORE);
+                node.setScore(CostFunctionImpl.DRAW_SCORE);
             return;
         }
         if (level == lookAhead)
@@ -63,7 +63,6 @@ public class Tree
         if (level % 2 == 0)
         {
             node.setScore(node.getChildren().stream().mapToDouble(Node::getScore).max().getAsDouble());
-            System.out.println(node.getScore());
         } else
         {
             node.setScore(node.getChildren().stream().mapToDouble(Node::getScore).min().getAsDouble());

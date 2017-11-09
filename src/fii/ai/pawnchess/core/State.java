@@ -1,7 +1,5 @@
 package fii.ai.pawnchess.core;
 
-import com.sun.xml.internal.bind.WhiteSpaceProcessor;
-
 import java.util.*;
 
 /**
@@ -125,8 +123,6 @@ public class State {
                 possibleMoves.put(left, Optional.of(left));
             if (hasPieceOnPosition(right, other))
                 possibleMoves.put(right, Optional.of(right));
-
-            // TODO fuking en-passant
         } else {
             System.out.println("Invalid move!");
         }
