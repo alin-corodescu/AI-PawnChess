@@ -9,32 +9,45 @@ public class Tree
     //*TODO use implementation of the costFunction and not null
     private CostFunction costFunction;
 
-    Tree() {
+    Tree()
+    {
         this.rootNode = null;
         lookAhead = 0;
         costFunction = null;
     }
 
-    Tree(Node rootNode, int lookAhead) {
+    Tree(Node rootNode, int lookAhead)
+    {
         this.rootNode = rootNode;
         this.lookAhead = lookAhead;
         costFunction = new CostFunctionImpl();
     }
 
-    public Node getRootNode() {
+    public Node getRootNode()
+    {
         return rootNode;
     }
 
-    public void setRootNode(Node rootNode) {
+    public void setRootNode(Node rootNode)
+    {
         this.rootNode = rootNode;
     }
 
-    public void createTreeOfStatesUsingDFS(Node node, int level, PlayerColor color){
+    public void createTreeOfStatesUsingDFS(Node node, int level, PlayerColor color)
+    {
 //      When reached the lookahead-th level of tree, compute the cost function
-        if( node.getState().isFinal(color)){
-            node.getState().getFinalStateType();
+        if (node.getState().isFinal(color))
+        {
+            if (node.getState().getFinalStateType() == FinalStateType.BLACK_WIN)
+                node.setScore(CostFunctionImpl.FINAL_SCORE);
+            if (node.getState().getFinalStateType() == FinalStateType.WHITE_WIN)
+                node.setScore(-CostFunctionImpl.FINAL_SCORE);
+            if (node.getState().getFinalStateType() == FinalStateType.DRAW)
+                node.setScore(-CostFunctionImpl.DRAW_SCORE);
+            return;
         }
-        if(level == lookAhead ){
+        if (level == lookAhead)
+        {
             node.setScore(this.costFunction.computeCost(node.getState()));
             return;
         }
@@ -42,23 +55,27 @@ public class Tree
         this.createNodeChildren(node, color);
         PlayerColor currentColor = PlayerColor.values()[PlayerColor.WHITE.ordinal() + PlayerColor.BLACK.ordinal() - color.ordinal()];
         List<Node> children = node.getChildren();
-        for(Node child : children){
-            createTreeOfStatesUsingDFS(child, level+1, currentColor);
+        for (Node child : children)
+        {
+            createTreeOfStatesUsingDFS(child, level + 1, currentColor);
         }
 //      decide which the parent node score will be based on the currentColour
-        if(level %2 == 0){
+        if (level % 2 == 0)
+        {
             node.setScore(node.getChildren().stream().mapToDouble(Node::getScore).max().getAsDouble());
             System.out.println(node.getScore());
-        }
-        else{
+        } else
+        {
             node.setScore(node.getChildren().stream().mapToDouble(Node::getScore).min().getAsDouble());
         }
 
     }
 
-    private void createNodeChildren(Node currentNode, PlayerColor color){
+    private void createNodeChildren(Node currentNode, PlayerColor color)
+    {
         List<State> neighbours = currentNode.getState().getAccessibleStates(color);
-        for(State state : neighbours){
+        for (State state : neighbours)
+        {
             Node node = new Node(state, 0);
             currentNode.addChildNode(node);
         }
