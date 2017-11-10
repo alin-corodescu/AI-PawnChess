@@ -31,19 +31,18 @@ public class CostFunctionImpl implements CostFunction
         //state when a pawn is removed from the game
         result += this.teamCount();
 
-        if(this.teamCount() == DRAW_SCORE) {
-            //state where pawns are nearer to finish
-            //result += this.howManyStepsBeforeFinalPosition(state);
+        //state where pawns are nearer to finish
+        result += this.howManyStepsBeforeFinalPosition(state);
 
-            //state with a isolated enemy pawn
-            result += this.pawnStrike(state) * 0.2;
+        //state with a isolated enemy pawn
+        result += this.pawnStrike(state);
 
-            //state where a pawn is protected by other pawns behind him
-            result += this.pawnAlliance(state) * 0.6;
+        //state where a pawn is protected by other pawns behind him
+        result += this.pawnAlliance(state);
 
-            //states where pawns are closer to the finish line
-            result += this.pawnAdvancement() * 0.2;
-        }
+        //states where pawns are closer to the finish line
+        result += this.pawnAdvancement();
+
         return result;
     }
 
@@ -92,10 +91,8 @@ public class CostFunctionImpl implements CostFunction
     private int teamCount()
     {
         int score = DRAW_SCORE;
-        if (blackPositions.size() > whitePositions.size())
-            score += GOOD_SCORE * blackPositions.size() ;
-        if (blackPositions.size() < whitePositions.size())
-            score += BAD_SCORE * whitePositions.size() ;
+        score += GOOD_SCORE * blackPositions.size() ;
+        score += BAD_SCORE * whitePositions.size();
         return score;
     }
 
